@@ -68,8 +68,8 @@ class ProjectDetail(APIView):
 
 
 class PledgeList(generics.ListCreateAPIView):
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = Pledge.objects.filter(anonymous=False)
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    queryset = Pledge.objects.all()
     serializer_class = PledgeSerializer
 
     def perform_create(self, serializer):
