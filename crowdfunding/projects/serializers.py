@@ -34,3 +34,6 @@ class ProjectSerializers(serializers.Serializer):
 class ProjectDetailSerializer(ProjectSerializers):
     pledges = PledgeSerializer(many=True, read_only=True)
     followed_by = CustomUserSerialiser(many=True, read_only=True)
+
+
+

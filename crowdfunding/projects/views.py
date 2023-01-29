@@ -60,11 +60,18 @@ class ProjectDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors)
+    
+    def delete(self,request,pk):
+        project = self.get_object(pk)
+        project.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PledgeList(generics.ListCreateAPIView):
-    queryset = Pledge.objects.all()
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    queryset = Pledge.objects.filter(anonymous=False)
     serializer_class = PledgeSerializer
 
     def perform_create(self, serializer):
         serializer.save(supporter=self.request.user)
+

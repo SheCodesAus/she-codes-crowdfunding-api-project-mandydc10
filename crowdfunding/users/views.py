@@ -5,6 +5,7 @@ from rest_framework import status
 
 from .models import CustomUser
 from .serializers import CustomUserSerialiser
+# from .permissions import IsOwnerOrReadOnly
 
 
 class CustomUserList(APIView):
@@ -23,6 +24,9 @@ class CustomUserList(APIView):
 
 
 class CustomUserDetail(APIView):
+    # permission_classes = [
+    #     permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly
+    # ]
 
     def get_object(self, pk):
         try:
@@ -34,3 +38,21 @@ class CustomUserDetail(APIView):
         user = self.get_object(pk)
         serializer = CustomUserSerialiser(user)
         return Response(serializer.data)
+
+    def put(self, request, pk):
+        user = self.get_object(pk)
+        data = request.data
+        serializer = CustomUserSerialiser(
+            instance=user,
+            data=data,
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+    def delete(self, request, pk):
+        user = self.get_object(pk)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
