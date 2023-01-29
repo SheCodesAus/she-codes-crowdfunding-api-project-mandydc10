@@ -3,12 +3,17 @@ from rest_framework.response import Response
 from .models import Project, Pledge
 from .serializers import ProjectSerializers, PledgeSerializer, ProjectDetailSerializer
 from django.http import Http404
-from rest_framework import status, generics, permissions
+from rest_framework import status, generics, permissions, filters
 from .permissions import IsOwnerOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Create your views here.
 class ProjectList(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['owner', 'is_open']
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', 'email']
     
     def get(self, request):
         projects = Project.objects.all()
@@ -66,10 +71,15 @@ class ProjectDetail(APIView):
         project.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class ProjectListFilter(generics.ListAPIView):
+	queryset = Project.objects.all()
+	serializer_class = ProjectSerializers
+	filter_backends = [DjangoFilterBackend]
+	filterset_fields = ['owner', 'date_created', 'is_open']
 
 class PledgeList(generics.ListCreateAPIView):
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = Pledge.objects.filter(anonymous=False)
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    queryset = Pledge.objects.all()
     serializer_class = PledgeSerializer
 
     def perform_create(self, serializer):

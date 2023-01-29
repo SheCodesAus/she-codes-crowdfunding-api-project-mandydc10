@@ -3,10 +3,21 @@ from .models import Project, Pledge
 from users.serializers import CustomUserSerialiser
 
 class PledgeSerializer(serializers.ModelSerializer):
+    supporter = serializers.SerializerMethodField()
     class Meta:
         model = Pledge
         fields = ['id', 'amount', 'comment', 'anonymous', 'project', 'supporter']
         read_only_fields = ['id', 'supporter']
+
+    def get_supporter(self, obj):
+    # do your conditional logic here
+        if obj.anonymous:
+            return None
+        else:
+            return obj.supporter.username
+    def create(self,validated_data):
+            return Pledge.objects.create(**validated_data)
+            
 class ProjectSerializers(serializers.Serializer):
     id = serializers.ReadOnlyField()
     title = serializers.CharField(max_length=200)
@@ -34,6 +45,7 @@ class ProjectSerializers(serializers.Serializer):
 class ProjectDetailSerializer(ProjectSerializers):
     pledges = PledgeSerializer(many=True, read_only=True)
     followed_by = CustomUserSerialiser(many=True, read_only=True)
+
 
 
 
